@@ -1,0 +1,45 @@
+# for SX127x series
+from LoRaRF import SX127x
+LoRa = SX127x()
+LoRa.begin()
+
+# set transmit power to +22 dBm for SX1262
+LoRa.setTxPower(22, LoRa.TX_POWER_SX1262)
+
+# Set frequency to 915 Mhz
+LoRa.setFrequency(915000000)
+
+# set spreading factor 8, bandwidth 125 kHz, coding rate 4/5, and low data rate optimization off
+LoRa.setLoRaModulation(8, 125000, 5, False)
+
+# set explicit header mode, preamble length 12, payload length 15, CRC on and no invert IQ operation
+LoRa.setLoRaPacket(LoRa.HEADER_EXPLICIT, 12, 15, True, False)
+
+
+# message and counter to transmit
+# writing strings to the LoRa module
+
+message = "HeLoRa World!\0"
+message_bytes=message.encode('utf-8')
+
+counter = 1
+counter_bytes=counter.to_bytes(2,'big')
+LoRa.beginPacket()
+LoRa.write(message_bytes)
+LoRa.write(counter)
+LoRa.endPacket()
+LoRa.wait()
+counter =counter + 1
+
+#writing integers to the LoRa module
+
+integer = 10
+integer_bytes=integer.to_bytes(2, 'big')
+counter_bytes=counter.to_bytes(2,'big')
+
+LoRa.beginPacket()
+LoRa.write(integer_bytes)
+LoRa.write(counter)
+LoRa.endPacket()
+LoRa.wait()
+counter =counter + 1
