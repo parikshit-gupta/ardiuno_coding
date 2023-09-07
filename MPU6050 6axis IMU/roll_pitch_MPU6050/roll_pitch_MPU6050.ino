@@ -11,14 +11,20 @@ float yawA;
 float rollG;   //about x axis
 float pitchG;  // about z axis
 float yawG;    // about y axis
-float dt = .01;
 
 float rollF;
 float pitchF;
 float yawF;
+float pitchN;
+float rollN;
+float pitchO;
+float rollO;
+
+float dt;
+unsigned long millisold;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   Wire.begin();
 
@@ -27,6 +33,9 @@ void setup() {
   // You can calibrate the sensor by uncommenting these lines and following the calibration procedure.
   mpu.CalibrateGyro();
   mpu.setDMPEnabled(true);
+
+  //millis returns the time in milli sec from when the ardiuno board started.
+  millisold=millis();
 }
 
 void loop() {
@@ -41,48 +50,38 @@ void loop() {
   float accelY = ay / 16384.0;
   float accelZ = az / 16384.0;
 
-  rollA = ((atan2(accelZ, accelY))*180)/3.14;
-  pitchA = ((atan2(accelX, accelY))*180)/3.14;
+  rollA = ((atan2(accelY, accelZ))*180)/3.14; // rotation about the x axis (of the sensor) x-y plane is the sensors plane
+  pitchA = ((atan2(accelX, accelZ))*180)/3.14;  // rotation about the y axis (of the sensor)
+
+  rollN=.9*(rollN)+(rollA)*.1;
+  pitchN=.9*(pitchN)+(pitchA)*.1;
+
 
   float gyroX = gx / 131.0;  // sensitivity scale factor for gyroscope
   float gyroY = gy / 131.0;
   float gyroZ = gz / 131.0;
 
+  dt=(millis()-millisold)/1000.0;
+  millisold=millis();
+
   rollG = rollG + gyroX * dt;
-  yawG = yawG + gyroY * dt;
-  pitchG = pitchG + gyroZ * dt;
+  yawG = yawG + gyroZ * dt;
+  pitchG = pitchG + gyroY * dt;
 
   //complimentry filter
 
-  rollF = .95*(rollF + gyroX*dt) +.1*(.95*rollF+.1*rollA);
-  pitchF = .95*(pitchF + gyroY*dt) +.1*(.95*pitchF+.1*pitchA);
+  rollF = .9*(rollG) +.1*(rollN);
+  pitchF = .9*(pitchG) +.1*(pitchN);
 
-
-  // Print the sensor data
-  Serial.print("Accel (m/s^2): ");
-  Serial.print(accelX);
-  Serial.print("\t");
-  Serial.print(accelY);
-  Serial.print("\t");
-  Serial.print(accelZ);
-  Serial.print("\t");
-
-  Serial.print("Gyro (deg/s): ");
-  Serial.print(gyroX);
-  Serial.print("\t");
-  Serial.print(gyroY);
-  Serial.print("\t");
-  Serial.print(gyroZ);
-  Serial.print('\t');
+  //printing final filtered data on the serial monitor
 
   Serial.print(rollF);
-  Serial.print('\t');
+  Serial.print(',');
   Serial.print(pitchF);
-  Serial.print('\t');
+  Serial.print(',');
   Serial.print(rollA);
-  Serial.print('\t');
+  Serial.print(',');
   Serial.println(pitchA);
-
-
-  delay(1000);  // Adjust the delay based on your requirements
+  
+  delay(100);  // Adjust the delay based on your requirements
 }
