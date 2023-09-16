@@ -1,8 +1,15 @@
 #include <Wire.h>
 #include <MPU6050.h>
 #include <math.h>
-
+#include <Adafruit_BMP280.h>
+#include <SPI.h>
+#define sealevelpressure_hpa 1013.25
 MPU6050 mpu;
+Adafruit_BMP280 bmp_obj = Adafruit_BMP280();
+float temp;
+float pres;
+float alti;
+float real_alti;
 
 float rollA;
 float pitchA;
@@ -36,6 +43,12 @@ void setup() {
 
   //millis returns the time in milli sec from when the ardiuno board started.
   millisold=millis();
+  bmp_obj.begin();
+  Serial.begin(9600);
+  if (!bmp_obj.begin())
+  {
+    Serial.println("BMP sensor not found.");
+  }
 }
 
 void loop() {
@@ -74,7 +87,7 @@ void loop() {
   pitchF = .9*(pitchG) +.1*(pitchN);
 
   //printing final filtered data on the serial monitor
-
+  Serial.println("MPU Measurement:");
   Serial.print(rollF);
   Serial.print(',');
   Serial.print(pitchF);
@@ -83,5 +96,19 @@ void loop() {
   Serial.print(',');
   Serial.println(pitchA);
   
-  delay(100);  // Adjust the delay based on your requirements
+  Serial.println("Altitude Measurement:");
+  temp=bmp_obj.readTemperature();
+  pres=bmp_obj.readPressure(); // returns pressure at current locaation in Pa.
+  alti=bmp_obj.readAltitude(); // returns altitute in meters assuming sea level presure to be 1013.25hpa if not specified.
+  real_alti = bmp_obj.readAltitude(sealevelpressure_hpa);
+  Serial.print(temp);
+  Serial.print(",");
+  Serial.print(pres);
+  Serial.print(",");
+  Serial.print(alti);
+  Serial.print(",");
+  Serial.print(real_alti);
+  Serial.println(",");
+  
+  delay(2000);  // Adjust the delay based on your requirements
 }
