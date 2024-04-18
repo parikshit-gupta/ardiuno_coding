@@ -10,7 +10,7 @@ float alti;
 float real_alti;
 void setup() {
   // put your setup code here, to run once:
-  bmp_obj.begin();
+  bmp_obj.begin(0x76, &Wire);
   Serial.begin(9600);
   if (!bmp_obj.begin())
   {
@@ -23,7 +23,7 @@ void loop() {
   temp=bmp_obj.readTemperature();
   pres=bmp_obj.readPressure(); // returns pressure at current locaation in Pa.
   alti=bmp_obj.readAltitude(); // returns altitute in meters assuming sea level presure to be 1013.25hpa if not specified.
-  real_alti = bmp_obj.readAltitude(sealevelpressure_hpa); // takes sealevel pressure in hpa as argument. hpa-hectopascal(10^-2)
+  real_alti = bmp_obj.readAltitude(); // takes sealevel pressure in hpa as argument. hpa-hectopascal(10^-2)
 
   /*
   Serial.print("temprature: ");
@@ -42,13 +42,9 @@ void loop() {
   Serial.print(real_alti);
   Serial.println(",");*/
 
-  Serial.print(temp);
-  Serial.print(",");
-  Serial.print(pres);
-  Serial.print(",");
   Serial.print(alti);
   Serial.print(",");
   Serial.print(real_alti);
   Serial.println(",");
-  delay(5000);
+  delay(50);
 }

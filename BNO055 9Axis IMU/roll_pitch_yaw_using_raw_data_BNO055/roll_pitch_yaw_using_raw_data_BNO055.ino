@@ -44,6 +44,7 @@ void loop()
     // using the acc data to get angle of rotation about the x and y axes.
     thetaM = ((atan2(acc.x(), acc.z())) * 180) / 3.14;
     phiM = (((atan2(acc.y()), acc.z())) * 180) / 3.14;
+
     // filtering the raw theta and phi using a low pass filter
     thetaF = .95 * (thetaF) + .05 * (thetaM);
     phiF = .95 * (phiF) + .05 * (phiF);
